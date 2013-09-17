@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <title>GeoResQ</title> 
+  <link rel="stylesheet"  href="css/themes/georesq.css"/>
+  <link rel="stylesheet"  href="css/themes/default/jquery.mobile.structure-1.3.1.min.css"/>
+  <link rel="stylesheet"  href="css/jqm-georesq.css"/>
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>  
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>  
+  <script type="text/javascript" charset="utf-8" src="js/geo.js"></script>
+  <script type="text/javascript" charset="utf-8" src="js/latlon.js"></script>
+  <script type="text/javascript" charset="utf-8" src="backgroundService-2.7.0.js"></script>  
+  <script type="text/javascript" charset="utf-8" src="js/georesq.js"></script>
+</head>
+
+<body>
+  
+  <div data-role="page" class="georesq-base" id="pgbase">
+    <script  type="text/javascript">
+	      $('[data-role=page]').on('pageshow', function () {document.addEventListener("deviceready", onDeviceReady, false) 	} );
+		</script>
+      <div data-role="header" data-type="horizontal" data-position="fixed" class="georesq-header">
+        <h1 class="georesq-logo">
+          <a href="#"><img src="images/georesq.png" alt="GeoResQ" class="georesq-logo"/></a>
+        </h1>
+      </div>
+    <div data-role="content" class="georesq-content">ATTENDERE PREGO<br/>CARICAMENTO APP IN CORSO</div>
+  </div>
+
+  <!-- TRACCIAMI INIZIO -->
+  <div data-role="page" class="georesq-base" id="pgtracciami">
+    <div data-role="header" data-type="horizontal" data-position="fixed" class="georesq-header" id="TRKheader">
+      <h1 class="georesq-logo">
+        <a href="#">
+          <img src="images/georesq.png" alt="GeoResQ" class="georesq-logo"/>
+        </a>
+      </h1>
+    </div>
+
+    <div data-role="footer"  data-position="fixed" id="TRKfooter">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a onclick="pg_allarme()">
+              <img src="images/medical.png" style="width:20px;height:20px"/><br/> Allarme
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_tracciami()" class="ui-btn-active ui-state-persist" >
+              <img src="images/gameplan.png" style="width:20px;height:20px"/><br/> Tracciami
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_posizione()">
+              <img src="images/map-marker.png" style="width:20px;height:20px"/><br/> Posizione
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <div data-role="content" class="georesq-content">
+
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a" style="text-align: center">
+          <fieldset data-role="controlgroup" data-type="horizontal" >
+            <input name="tracciamento" id="start_trk" type="radio"  value="ON"  onclick="start_tracce()" data-theme="a"/>
+            <label for="start_trk">
+              <img src='images/play2x.png' class="trkicon"/>
+            </label>
+            <input name="tracciamento" id="stop_trk" type="radio" value="OF" checked="checked"  onclick="stop_tracce()" data-theme="a"/>
+            <label for="stop_trk">
+              <img src='images/pause2x.png' class="trkicon"/>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+
+          <label class="ui-hidden-accessible" for="textinput-hide">Descrizione traccia</label>
+          <input data-mini="true" name="TRKdtraccia" id="TRKdtraccia" type="text" placeholder="Descrizione traccia" value="" onchange="cambia_traccia()"/>
+        </div>
+      </div>
+
+      <div class="ui-grid-d">
+        <div class="ui-block-a">
+          <div class="ui-bar ui-bar-a" style="height:52px"  onclick="ar_alert('Punti rilevati dal GPS, quando hai fatto partire la traccia')">
+            <img alt="" src="images/location-arrow.png" style="width:10px;height:10px;float:left;margin-right:4px"/>
+            <br/>
+            <div id="TRKpuntiril">0</div>
+          </div>
+        </div>
+        <div class="ui-block-b">
+          <div class="ui-bar ui-bar-a" style="height:52px" onclick="ar_alert('Punti spediti, possono essere maggiori di quelli rilevati se ne erano rimasti in memoria da precedenti tracciature')">
+            <img alt="" src="images/upload.png" style="width:10px;height:10px;float:left;margin-right:4px"/>
+            <br/>
+            <div id="TRKpuntitra">0</div>
+          </div>
+        </div>
+        <div class="ui-block-c">
+          <div class="ui-bar ui-bar-a" style="height:52px" onclick="ar_alert('Punti rilevati non ancora spediti')">
+            <img alt="" src="images/download.png" style="width:10px;height:10px;float:left;margin-right:4px"/>
+            <br/>
+            <div id="TRKpuntidatra">0</div>
+          </div>
+        </div>
+        <div class="ui-block-d">
+          <div class="ui-bar ui-bar-a" style="height:52px" onclick="reinvia_tracce()">
+            <img alt="" src="images/code-sync.png" style="width:10px;height:10px;float:left;margin-right:4px"/>
+            <br/>
+            <div id="TRKpuntiintra">0</div>
+          </div>
+        </div>
+        <div class="ui-block-e">
+          <div class="ui-bar ui-bar-a" style="height:52px">
+            <img alt="" src="images/wifi-off.png" id="TRKwifi"/>
+            <br/>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <div class="ui-bar ui-bar-a" style="height: 70px;">
+            <img src="images/map-marker2x.png" style="float:left" />
+            <div id="TRKlatitudine" style="font-size:x-large;margin-left:40px"></div>
+            <div id="TRKlongitudine" style="font-size:x-large;margin-left:40px"></div>
+            <div style="position:absolute;top:10px;right:0px;;font-size:12px;width:50px">
+              <div id="TRKraggio"></div>
+              <div id="TRKquotaET" style="font-size:xx-small"><br>quota</div>
+              <div id="TRKquota"></div>
+            </div>
+          </div>
+        </div>
+
+
+		<div class="ui-grid-solo">
+	        <div class="ui-block-a">
+	          <div class="ui-bar ui-bar-a" style="height: 60px;">
+	            <img src="images/clock.png" style="float:left;width:35px" />
+	            <div id="TRKinizio" style="font-size:large;margin-left:40px"></div>
+	            <div id="TRKtempo" style="font-size:x-large;margin-left:40px"></div>
+	          </div>
+	        </div>
+        </div>
+
+		<div class="ui-grid-b">
+	        <div class="ui-block-b">
+	           <div class="ui-bar ui-bar-a" style="height: 60px;">	
+	           		<div id="TRKdistanzaET" style="font-size:x-small;">distanza percorsa</div>
+	           		<div id="TRKdistanza" style="font-size:large;"></div>
+	           </div>
+	        </div>
+	        <div class="ui-block-c">
+	           <div class="ui-bar ui-bar-a" style="height: 60px;">
+	           		<div id="TRKdistanzaET" style="font-size:x-small;">dislivello salita in m</div>
+	           		<div id="TRKdislivelloSU" style="font-size:large"></div>
+	           </div>
+	        </div>
+	        <div class="ui-block-d">
+	           <div class="ui-bar ui-bar-a" style="height: 60px;">
+	           		<div id="TRKdistanzaET" style="font-size:x-small;">dislivello discesa in m</div>
+	           		<div id="TRKdislivelloGIU" style="font-size:large"></div>  
+	           </div>          
+	        </div>
+	    </div>
+
+      </div>
+
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a" style="text-align: center">
+          <fieldset data-role="controlgroup" data-type="horizontal"  >
+            <input name="TRKmezzo" id="trcP" type="radio"  value="P"  checked="checked" onclick="cambia_mezzo('P')" data-theme="a"/>
+            <label for="trcP">
+              <img src='images/runner.png' class="trkicon"/>
+            </label>
+            <input name="TRKmezzo" id="trcM" type="radio" value="M"  onclick="cambia_mezzo('M')" data-theme="a"/>
+            <label for="trcM">
+              <img src='images/car.png' class="trkicon"/>
+            </label>
+            <input name="TRKmezzo" id="trcE" type="radio" value="E" onclick="cambia_mezzo('E')" data-theme="a"/>
+            <label for="trcE">
+              <img src='images/airplane.png' class="trkicon"/>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- TRACCIAMI FINE-->
+
+
+  <!-- PARAMETRI INIZIO -->
+  <div data-role="page" class="georesq-base" id="pgparametri">
+    <div data-role="header" data-type="horizontal" data-position="fixed" class="georesq-header" id="PARheader">
+      <h1 class="georesq-logo">
+        <a href="#">
+          <img src="images/georesq.png" alt="GeoResQ" class="georesq-logo"/>
+        </a>
+      </h1>
+    </div>
+    <div data-role="footer"  data-position="fixed" id="PARfooter">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a onclick="pg_allarme()">
+              <img src="images/medical.png" style="width:20px;height:20px"/><br/> Allarme
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_tracciami()">
+              <img src="images/gameplan.png" style="width:20px;height:20px"/><br/> Tracciami
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_posizione()">
+              <img src="images/map-marker.png" style="width:20px;height:20px"/><br/> Posizione
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div data-role="content" class="georesq-content" >
+      <ul data-role="listview" data-inset="true"  id="PARattivaUSR" >
+        <li data-role="fieldcontain">
+          <label for="PARemail">EMail:</label>
+          <input name="PARemail" id="PARemail" type="email" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARpassword">Password:</label>
+          <input name="PARpassword" id="PARpassword" type="password" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <input name="PARBTattivaUSR" id="PARBTattivaUSR" type="button" value="Verifica Email e password" onclick="salvaUSR()" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTrecupera">Hai dimenticato la password?</label>
+          <input name="PARBTrecupera" id="PARBTrecupera" type="button" value="Recupera password" onclick="recupera_pwd()" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTrecupera">Ti devi ancora registrare?</label>
+          <input name="PARBTregistrati" id="PARBTregistrati" type="button" value="Registrati adesso"  onclick="regora()"  data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTcancella">Vuoi ricominciare da capo?</label>
+          <input name="PARBTcancella" id="PARBTcancella" type="button" value="azzera tutto"  onclick="ar_confirm('Sei sicuro?','cancella_tutto()')"  data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="parinfo1">Vuoi saperne di più?</label>
+          <input type="button" name="parinfo1" id="parinfo1" value="chiedi aiuto" onclick="open_link(server+'/help.asp#usr')" />
+        </li>
+      </ul>
+      <ul data-role="listview" data-inset="true" id="PARattivaTEL" >
+        <li data-role="fieldcontain">
+          <label for="PARtelefono">Telefono:</label>
+          <input name="PARtelefono" id="PARtelefono" type="number" pattern="[0-9]*"  value="" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain"  >
+          <label for="PARBTattivaUUID">Verifica il telefono, fatti inviare un SMS con la procedura di attivazione:</label>
+          <input name="PARBTattivaUUID" id="PARBTattivaUUID" type="button" value="Invia SMS" onclick="salvaUUID()" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain"  >
+          <label for="PARBTattivaUUID">Hai gia ricevuto SMS e hai seguito il LINK :</label>
+          <input name="PARBTattivaUUID" id="PARBTricontrolloUUID" type="button" value="Ricontrollo?" onclick="checkUUID(true)" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTcancella">Vuoi ricominciare da capo?</label>
+          <input name="PARBTcancella" id="PARBTcancella" type="button" value="azzera tutto"  onclick="ar_confirm('Sei sicuro?','cancella_tutto()')"  data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="parinfo2">Vuoi saperne di più?</label>
+          <input type="button" name="parinfo2" id="parinfo2" value="chiedi aiuto" onclick="open_link(server+'help.asp#uuid')" />
+        </li>
+      </ul>
+      <ul data-role="listview" data-inset="true" id="PARattivaABB" >
+        <li data-role="fieldcontain"  >
+          <label for="PARBTattivaABB">Ora devi pagare l'abbonamento o caricare il tuo voucher :</label>
+          <input name="PARBTattivaABB" id="PARBTattivaABB" type="button" value="collegati al sito" onclick="open_link(server+'/login.asp?accedi=pagamenti&amp;email='+email+'&amp;pwd='+password)" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain"  >
+          <label for="PARBTattivaUUID">Hai gia pagato o caricato un voucher:</label>
+          <input name="PARBTattivaUUID" id="PARBTricontrolloABB" type="button" value="Ricontrollo?" onclick="checkUUID(true)" data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTcancella">Vuoi ricominciare da capo?</label>
+          <input name="PARBTcancella" id="PARBTcancellaX1" type="button" value="azzera tutto"  onclick="ar_confirm('Sei sicuro?','cancella_tutto()')"  data-clear-btn="true" />
+        </li>
+        <li data-role="fieldcontain">
+          <label for="parinfo3">Vuoi saperne di più?</label>
+          <input type="button" name="parinfo3" id="parinfo3" value="chiedi aiuto" onclick="open_link(server+'/help.asp#eur')" />
+        </li>
+      </ul>
+      <ul data-role="listview" data-inset="true"  id="PARregistrati" >
+        <li data-role="fieldcontain">
+          <label for="REGnome">Nome:</label>
+          <input name="REGnome" id="REGnome" type="text" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="REGcognome">Cognome:</label>
+          <input name="REGcognome" id="REGcognome" type="text" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="REGemail">EMail:</label>
+          <input name="REGemail" id="REGemail" type="email" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="REGpassword">Password:</label>
+          <input name="REGpassword" id="REGpassword" type="password" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="REGtelefono">Telefono:</label>
+          <input name="REGtelefono" id="REGtelefono" type="text" value="" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTattivati">Hai compilatto tutti i campi? </label>
+          <input name="PARBTregistraUSR" id="PARBTregistraUSR" type="button" value="Registrati" onclick="registrati()" data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTattivati">sei gia registrato? </label>
+          <input name="PARBTattivati" id="PARBTattivati" type="button" value="attiva la app"  onclick="attora()"  data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="PARBTcancella">Vuoi ricominciare da capo?</label>
+          <input name="PARBTcancella" id="PARBTcancellaX2" type="button" value="azzera tutto"  onclick="ar_confirm('Sei sicuro?','cancella_tutto()')"  data-clear-btn="true"/>
+        </li>
+        <li data-role="fieldcontain">
+          <label for="parinfo4">Vuoi saperne di più?</label>
+          <input type="button" name="parinfo4" id="parinfo4" value="chiedi aiuto" onclick="open_link(server+'/help.asp#reg')" />
+        </li>
+      </ul>
+      <ul data-role="listview" data-inset="true"  id="PARxmessaggi" >
+        <li data-role="fieldcontain">
+          <label id="PARmessaggi"></label>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- PARAMETRI FINE-->
+
+
+  <!-- ALLARME INIZIO -->
+  <div data-role="page" class="georesq-base" id="pgallarme">
+    <div data-role="header" data-type="horizontal" data-position="fixed" class="georesq-header" id="ALLheader">
+      <h1 class="georesq-logo">
+        <a href="#">
+          <img src="images/georesq.png" alt="GeoResQ" class="georesq-logo"/>
+        </a>
+      </h1>
+    </div>
+    <div data-role="footer" data-position="fixed" id="ALLfooter">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a onclick="pg_allarme()" class="ui-btn-active ui-state-persist" >
+              <img src="images/medical.png" style="width:20px;height:20px"/><br/> Allarme
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_tracciami()">
+              <img src="images/gameplan.png" style="width:20px;height:20px"/><br/> Tracciami
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_posizione()">
+              <img src="images/map-marker.png" style="width:20px;height:20px"/><br/> Posizione
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+    <div data-role="content" class="georesq-content">
+      <div id="ALLballarme" style="width:100%;text-align: center" >
+        <a href="#" onclick="ar_confirm('Sei sicuro di voler inviare l allarme?','start_allarme()')"  data-role="button" data-icon="alert" data-iconpos="top" data-inline="true"  data-theme="e" >
+          INVIA RICHIESTA DI AIUTO<br/>ALLA CENTRALE OPERATIVA<br/>
+        </a>
+      </div>
+      <div id="ALLgpsdati" >
+        <div class="ui-grid-solo">
+          <div class="ui-block-a">
+            <div class="ui-bar ui-bar-e" style="height: 120px;">
+              <div id="ALLmessaggi"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ui-grid-a">
+          <div class="ui-block-a">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Latitudine<div id="ALLlatitudine"></div>
+            </div>
+          </div>
+          <div class="ui-block-b">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Longitudine<div id="ALLlongitudine"></div>
+            </div>
+          </div>
+          <div class="ui-block-a">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Quota<div id="ALLquota"></div>
+            </div>
+          </div>
+          <div class="ui-block-b">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Raggio<div id="ALLraggio"></div>
+            </div>
+          </div>
+          <div class="ui-block-a">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Punti Rilevati<div id="ALLpuntiril"></div>
+            </div>
+          </div>
+          <div class="ui-block-b">
+            <div class="ui-bar ui-bar-e" style="height: 60px;">
+              Punti Spediti<div id="ALLpuntitra"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ALLARME FINE-->
+
+  <!-- POSIZIONE INIZIO -->
+  <div data-role="page" class="georesq-base" id="pgposizione">
+
+    <div data-role="header" data-type="horizontal" data-position="fixed" class="georesq-header" id="POSheader">
+      <h1 class="georesq-logo">
+        <a href="#">
+          <img src="images/georesq.png" alt="GeoResQ" class="georesq-logo"/>
+        </a>
+      </h1>
+    </div>
+
+    <div data-role="footer"  data-position="fixed" id="POSfooter">
+      <div data-role="navbar">
+        <ul>
+          <li>
+            <a onclick="pg_allarme()">
+              <img src="images/medical.png" style="width:20px;height:20px"/><br/> Allarme
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_tracciami()">
+              <img src="images/gameplan.png" style="width:20px;height:20px"/><br/> Tracciami
+            </a>
+          </li>
+          <li>
+            <a onclick="pg_posizione()" class="ui-btn-active ui-state-persist" >
+              <img src="images/map-marker.png" style="width:20px;height:20px"/><br/> Posizione
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <div data-role="content" class="georesq-content">
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <div class="ui-bar ui-bar-a" style="height: 120px;">
+            Posizione<div id="POSposizione"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <div class="ui-bar ui-bar-a" style="height: 70px;">
+            <img src="images/map-marker2x.png" style="float:left" />
+            <div id="POSlatitudine" style="font-size:x-large;margin-left:40px"></div>
+            <div id="POSlongitudine" style="font-size:x-large;margin-left:40px"></div>
+          </div>
+          <div style="position:absolute;top:10px;right:0px;;font-size:12px;width:50px">
+            <div id="POSraggio"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <div class="ui-bar ui-bar-a" style="height: 60px;">
+            <img src="images/mountain.png" style="float:left" />
+            <div id="POSquota" style="font-size:x-large;margin-left:40px"></div>
+            <div style="position:absolute;top:10px;right:0px;;font-size:12px;width:50px">
+              <div id="POSaccquota"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <input type="button" name="aggposizione" value="Aggiorna Posizione" onclick="getposizione()" />
+        </div>
+      </div>
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a">
+          <input type="button" name="posinfo" value="Vuoi saperne di più?" onclick="open_link(server+'/help.asp#posizione')" />
+        </div>
+      </div>
+
+      <div class="ui-grid-solo">
+        <div class="ui-block-a" id="versione"/>
+      </div>
+
+
+
+
+    </div>
+
+
+
+
+
+  </div>
+  <!-- POSIZIONE FINE-->
+
+
+</body>
+</html>
